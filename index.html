@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ladder — from print() to n+1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10161d;
+    --surface: #182029;
+    --surface-2: #1f2933;
+    --line: #2b3743;
+    --ink: #e7ebee;
+    --ink-dim: #97a4b0;
+    --ink-faint: #5f6d7a;
+    --amber: #e2a659;
+    --sage: #7fb69a;
+    --rose: #c97b7b;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height:1.5;
+    padding-bottom:80px;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 20px;}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding:48px 20px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13px;
+    color:var(--amber);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:"Fraunces", serif;
+    font-weight:600;
+    font-size:clamp(32px, 8vw, 44px);
+    line-height:1.08;
+    margin:0 0 16px;
+    max-width:640px;
+  }
+  .hero p.lede{
+    color:var(--ink-dim);
+    max-width:56ch;
+    font-size:16px;
+    margin:0 0 28px;
+  }
+  .hero p.lede strong{color:var(--ink); font-weight:600;}
+
+  /* staircase bar chart */
+  .stairs{
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    max-width:640px;
+    margin:0 0 8px;
+    height:150px;
+  }
+  .stair{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+  }
+  .stair .bar{
+    width:100%;
+    border-radius:3px 3px 0 0;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-bottom:none;
+    position:relative;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+  }
+  .stair .bar span{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13px;
+    color:var(--ink);
+    margin-top:6px;
+  }
+  .stair .lbl{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+    margin-top:8px;
+    text-align:center;
+  }
+  .stair.n1 .bar{border-color:var(--amber);}
+  .stair.n .bar{border-color:var(--sage);}
+
+  .legend{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+    max-width:640px;
+    margin-bottom:6px;
+  }
+
+  /* overall progress */
+  .overall{
+    margin-top:28px;
+    padding:14px 16px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:8px;
+    max-width:640px;
+  }
+  .overall-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+  .overall-top span:first-child{font-size:14px; color:var(--ink-dim);}
+  #overallCount{font-family:"IBM Plex Mono", monospace; font-size:14px; color:var(--ink);}
+  .progress-track{height:6px; background:var(--surface-2); border-radius:4px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg, var(--sage), var(--amber)); width:0%; transition:width .3s ease;}
+
+  /* ---------- LEVELS ---------- */
+  main{padding:36px 20px 0;}
+  details.level{
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--surface);
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  details.level[open]{background:var(--surface);}
+  summary.level-head{
+    list-style:none;
+    cursor:pointer;
+    padding:18px 20px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  summary.level-head::-webkit-details-marker{display:none;}
+  .level-num{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;
+    color:var(--bg);
+    background:var(--ink-faint);
+    width:28px; height:28px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .level.tag-n .level-num{background:var(--sage); }
+  .level.tag-n1 .level-num{background:var(--amber);}
+  .level-head-text{flex:1; min-width:0;}
+  .level-title{
+    font-family:"Fraunces", serif;
+    font-weight:600;
+    font-size:19px;
+    margin:0;
+  }
+  .level-sub{
+    color:var(--ink-faint);
+    font-size:13px;
+    margin-top:2px;
+  }
+  .level-count{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    white-space:nowrap;
+  }
+  .chevron{
+    color:var(--ink-faint);
+    transition:transform .2s ease;
+    flex-shrink:0;
+  }
+  details[open] .chevron{transform:rotate(90deg);}
+
+  .level-body{
+    padding:0 20px 20px;
+    border-top:1px solid var(--line);
+  }
+  .level-note{
+    font-size:14px;
+    color:var(--ink-dim);
+    margin:16px 0 20px;
+    padding:12px 14px;
+    background:var(--surface-2);
+    border-left:2px solid var(--amber);
+    border-radius:0 6px 6px 0;
+  }
+  .group{margin-bottom:22px;}
+  .group:last-child{margin-bottom:4px;}
+  .group h4{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;
+    letter-spacing:.02em;
+    color:var(--ink-faint);
+    margin:0 0 10px;
+    padding-top:16px;
+  }
+  ol.qlist{
+    list-style:none;
+    margin:0; padding:0;
+    counter-reset: q;
+  }
+  ol.qlist li{
+    counter-increment: q;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    padding:7px 0;
+    border-bottom:1px solid var(--line);
+    font-size:14.5px;
+  }
+  ol.qlist li:last-child{border-bottom:none;}
+  ol.qlist li::before{
+    content: counter(q);
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+    width:20px;
+    flex-shrink:0;
+    padding-top:2px;
+  }
+  ol.qlist li input[type=checkbox]{
+    margin-top:3px;
+    accent-color:var(--sage);
+    flex-shrink:0;
+    width:15px; height:15px;
+    cursor:pointer;
+  }
+  ol.qlist li label{cursor:pointer; flex:1;}
+  ol.qlist li input:checked + label{
+    color:var(--ink-faint);
+    text-decoration:line-through;
+    text-decoration-color:var(--ink-faint);
+  }
+
+  footer{
+    margin:40px 20px 0;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--ink-faint);
+    font-size:13px;
+    max-width:640px;
+  }
+  footer a{color:var(--sage);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap" style="padding:0;">
+    <p class="eyebrow">a practice ladder, not a syllabus</p>
+    <h1>From <code style="font-family:inherit;">print()</code> to the level past your hardest problem</h1>
+    <p class="lede">
+      The four problem sets you shared — Chapter/Exam, Vehicle/Store, Realtor, Product Management,
+      Player League, Wood/Furniture, and the two SQL joins — all sit at roughly the same difficulty:
+      <strong>a class holding a list of another class, with one or two methods that search, filter, or sort it,
+      fed by a fixed stdin format.</strong> Call that <strong>level n</strong>. This ladder builds up to it
+      from plain Python, then pushes one rung past it into <strong>level n+1</strong>: multi-class systems,
+      composition, and SQL-shaped logic done by hand.
+    </p>
+
+    <div class="stairs">
+      <div class="stair"><div class="bar" style="height:100%"><span>60</span></div><div class="lbl">1<br>Basics</div></div>
+      <div class="stair"><div class="bar" style="height:83%"><span>50</span></div><div class="lbl">2<br>Structures</div></div>
+      <div class="stair"><div class="bar" style="height:66%"><span>40</span></div><div class="lbl">3<br>Intro OOP</div></div>
+      <div class="stair n"><div class="bar" style="height:50%"><span>30</span></div><div class="lbl">4 · n<br>Object lists</div></div>
+      <div class="stair n1"><div class="bar" style="height:33%"><span>20</span></div><div class="lbl">5 · n+1<br>Systems</div></div>
+    </div>
+    <p class="legend">200 questions total · fewer, harder questions as you climb</p>
+
+    <div class="overall">
+      <div class="overall-top">
+        <span>Overall progress</span>
+        <span id="overallCount">0 / 200</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="overallFill"></div></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- LEVEL 1 -->
+  <details class="level" open>
+    <summary class="level-head">
+      <span class="level-num">1</span>
+      <span class="level-head-text">
+        <p class="level-title">Basics</p>
+        <p class="level-sub">Variables, operators, conditionals, loops, strings, functions</p>
+      </span>
+      <span class="level-count" data-progress="0/60">0/60</span>
+      <span class="chevron">▸</span>
+    </summary>
+    <div class="level-body">
+      <p class="level-note">If you can already write a loop and a function without thinking, skim this level and move on — nothing here is a trap, it's just runway.</p>
+
+      <div class="group"><h4>A · Variables &amp; I/O</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Print "Hello, World!" to the screen.</label></li>
+        <li><input type="checkbox"><label>Store your name in a variable and print a greeting using it.</label></li>
+        <li><input type="checkbox"><label>Read two numbers from input and print their sum.</label></li>
+        <li><input type="checkbox"><label>Swap the values of two variables without using a third variable.</label></li>
+        <li><input type="checkbox"><label>Read a temperature in Celsius and convert it to Fahrenheit.</label></li>
+        <li><input type="checkbox"><label>Print the type of three different variables (int, float, str).</label></li>
+        <li><input type="checkbox"><label>Read your age and print roughly how many days you've been alive.</label></li>
+        <li><input type="checkbox"><label>Concatenate a string and a number using an f-string.</label></li>
+        <li><input type="checkbox"><label>Read a float and print it rounded to two decimal places.</label></li>
+        <li><input type="checkbox"><label>Read three values on one line, space-separated, and print each on its own line.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>B · Operators &amp; expressions</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Compute the area and perimeter of a rectangle from its width and height.</label></li>
+        <li><input type="checkbox"><label>Check whether a number is even or odd using the modulo operator.</label></li>
+        <li><input type="checkbox"><label>Compute the quotient and remainder of two numbers using // and %.</label></li>
+        <li><input type="checkbox"><label>Evaluate an expression mixing +, -, *, / and explain the order of operations.</label></li>
+        <li><input type="checkbox"><label>Print the larger of two numbers using a single expression (no if).</label></li>
+        <li><input type="checkbox"><label>Compute compound interest given principal, rate, and time.</label></li>
+        <li><input type="checkbox"><label>Convert a number of seconds into hours, minutes, and seconds.</label></li>
+        <li><input type="checkbox"><label>Chain comparisons in one line to check if a number is between 1 and 100.</label></li>
+        <li><input type="checkbox"><label>Use the walrus operator to read and check a value in one line.</label></li>
+        <li><input type="checkbox"><label>Compute the average of three numbers, rounded to one decimal place.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>C · Conditionals</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Check whether a number is positive, negative, or zero.</label></li>
+        <li><input type="checkbox"><label>Determine whether a given year is a leap year.</label></li>
+        <li><input type="checkbox"><label>Classify a triangle as equilateral, isosceles, or scalene from its three sides.</label></li>
+        <li><input type="checkbox"><label>Grade a score into A/B/C/D/F bands using if-elif-else.</label></li>
+        <li><input type="checkbox"><label>Check whether a given character is a vowel or a consonant.</label></li>
+        <li><input type="checkbox"><label>Find the largest of three numbers without using max().</label></li>
+        <li><input type="checkbox"><label>Write a calculator that adds, subtracts, multiplies, or divides based on a symbol input.</label></li>
+        <li><input type="checkbox"><label>Check whether a string is empty and print an appropriate message.</label></li>
+        <li><input type="checkbox"><label>Simulate a traffic light: given a colour, print what a driver should do.</label></li>
+        <li><input type="checkbox"><label>Validate whether a password is long enough and contains at least one digit.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>D · Loops</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Print numbers 1 to n using a for loop.</label></li>
+        <li><input type="checkbox"><label>Print the multiplication table of a given number.</label></li>
+        <li><input type="checkbox"><label>Sum all numbers from 1 to n using a while loop.</label></li>
+        <li><input type="checkbox"><label>Print the Fibonacci sequence up to n terms.</label></li>
+        <li><input type="checkbox"><label>Check whether a number is prime.</label></li>
+        <li><input type="checkbox"><label>Print all prime numbers up to n.</label></li>
+        <li><input type="checkbox"><label>Reverse a number using a loop (e.g. 123 → 321).</label></li>
+        <li><input type="checkbox"><label>Count the digits in a number using a loop.</label></li>
+        <li><input type="checkbox"><label>Print a triangle of stars using nested loops.</label></li>
+        <li><input type="checkbox"><label>Break out of a loop early once a target value is found in a range.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>E · Strings</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Reverse a string and explain how the slice trick [::-1] works.</label></li>
+        <li><input type="checkbox"><label>Check whether a string is a palindrome.</label></li>
+        <li><input type="checkbox"><label>Count the vowels in a string.</label></li>
+        <li><input type="checkbox"><label>Convert a string to uppercase and to lowercase.</label></li>
+        <li><input type="checkbox"><label>Count the occurrences of each character in a string.</label></li>
+        <li><input type="checkbox"><label>Check whether two strings are anagrams of each other.</label></li>
+        <li><input type="checkbox"><label>Split a sentence into words and print them in reverse order.</label></li>
+        <li><input type="checkbox"><label>Replace all spaces in a string with underscores.</label></li>
+        <li><input type="checkbox"><label>Find the longest word in a sentence.</label></li>
+        <li><input type="checkbox"><label>Check whether a string starts or ends with a substring, case-insensitively.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>F · Functions</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Write a function that returns the square of a number.</label></li>
+        <li><input type="checkbox"><label>Write a function with a default parameter value.</label></li>
+        <li><input type="checkbox"><label>Write a function that accepts a variable number of arguments (*args).</label></li>
+        <li><input type="checkbox"><label>Write a function that returns multiple values as a tuple.</label></li>
+        <li><input type="checkbox"><label>Write a recursive function to compute a factorial.</label></li>
+        <li><input type="checkbox"><label>Write a recursive function for the nth Fibonacci number.</label></li>
+        <li><input type="checkbox"><label>Write a function that sums a list without using sum().</label></li>
+        <li><input type="checkbox"><label>Write a function with keyword arguments, called both positionally and by keyword.</label></li>
+        <li><input type="checkbox"><label>Write a lambda that doubles a number and use it with map().</label></li>
+        <li><input type="checkbox"><label>Write a function that validates its own input and raises ValueError on bad input.</label></li>
+      </ol></div>
+    </div>
+  </details>
+
+  <!-- LEVEL 2 -->
+  <details class="level">
+    <summary class="level-head">
+      <span class="level-num">2</span>
+      <span class="level-head-text">
+        <p class="level-title">Data structures &amp; functions</p>
+        <p class="level-sub">Lists, tuples, dicts, sets, scope, exceptions</p>
+      </span>
+      <span class="level-count" data-progress="0/50">0/50</span>
+      <span class="chevron">▸</span>
+    </summary>
+    <div class="level-body">
+      <p class="level-note">This is where the actual building blocks for the "list of objects" problems come from — especially the dictionary and exception-handling groups.</p>
+
+      <div class="group"><h4>A · Lists</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Create a list, append items, and remove one by value.</label></li>
+        <li><input type="checkbox"><label>Find the maximum and minimum of a list without max()/min().</label></li>
+        <li><input type="checkbox"><label>Reverse a list in place.</label></li>
+        <li><input type="checkbox"><label>Remove duplicates from a list while preserving order.</label></li>
+        <li><input type="checkbox"><label>Merge two already-sorted lists into one sorted list.</label></li>
+        <li><input type="checkbox"><label>Find the second largest number in a list.</label></li>
+        <li><input type="checkbox"><label>Split a list into chunks of a given size.</label></li>
+        <li><input type="checkbox"><label>Rotate a list left by k positions.</label></li>
+        <li><input type="checkbox"><label>Flatten a list of lists into a single list.</label></li>
+        <li><input type="checkbox"><label>Count how many elements in a list satisfy a condition.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>B · Tuples</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Create a tuple of coordinates and unpack it into x and y.</label></li>
+        <li><input type="checkbox"><label>Swap the values held by two tuples.</label></li>
+        <li><input type="checkbox"><label>Convert a list into a tuple and back.</label></li>
+        <li><input type="checkbox"><label>Find the index of a given element in a tuple.</label></li>
+        <li><input type="checkbox"><label>Sort a list of tuples by their second element.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>C · Dictionaries</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Create a dictionary of student names to marks and print each pair.</label></li>
+        <li><input type="checkbox"><label>Find the key with the maximum value in a dictionary.</label></li>
+        <li><input type="checkbox"><label>Merge two dictionaries, with the second overriding the first on conflicts.</label></li>
+        <li><input type="checkbox"><label>Count the frequency of each word in a sentence using a dictionary.</label></li>
+        <li><input type="checkbox"><label>Invert a dictionary (swap its keys and values).</label></li>
+        <li><input type="checkbox"><label>Build a filtered dictionary containing only entries that meet a condition.</label></li>
+        <li><input type="checkbox"><label>Use .get() with a default value to avoid a KeyError.</label></li>
+        <li><input type="checkbox"><label>Sort a dictionary's items by value in descending order.</label></li>
+        <li><input type="checkbox"><label>Group a list of numbers into "even" and "odd" keys in a dictionary.</label></li>
+        <li><input type="checkbox"><label>Build a small nested dictionary representing an address book.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>D · Sets</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Find the common elements between two lists using sets.</label></li>
+        <li><input type="checkbox"><label>Remove duplicates from a list using a set, then restore the original order.</label></li>
+        <li><input type="checkbox"><label>Find elements present in one list but not another.</label></li>
+        <li><input type="checkbox"><label>Check whether one set is a subset of another.</label></li>
+        <li><input type="checkbox"><label>Use a set to detect duplicate entries in user input.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>E · Functions &amp; scope</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Demonstrate the difference between a local and a global variable.</label></li>
+        <li><input type="checkbox"><label>Write a function that mutates a list passed to it, and observe the effect outside.</label></li>
+        <li><input type="checkbox"><label>Write a function that returns another function (a simple closure).</label></li>
+        <li><input type="checkbox"><label>Use *args and **kwargs together in one function.</label></li>
+        <li><input type="checkbox"><label>Write a decorator that prints "before" and "after" around a function call.</label></li>
+        <li><input type="checkbox"><label>Write a function annotated with type hints.</label></li>
+        <li><input type="checkbox"><label>Write a generator function that yields squares up to n.</label></li>
+        <li><input type="checkbox"><label>Use a generator expression to sum the squares of even numbers up to n.</label></li>
+        <li><input type="checkbox"><label>Write a function with a docstring and view it with help().</label></li>
+        <li><input type="checkbox"><label>Refactor duplicated logic in two functions into one shared helper.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>F · Files &amp; exceptions</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Divide two numbers and handle a ZeroDivisionError gracefully.</label></li>
+        <li><input type="checkbox"><label>Read input and handle a ValueError if it isn't a valid integer.</label></li>
+        <li><input type="checkbox"><label>Use try/except/else/finally in a single program.</label></li>
+        <li><input type="checkbox"><label>Raise a custom exception when a value fails validation.</label></li>
+        <li><input type="checkbox"><label>Write and then read a list of numbers to/from a text file.</label></li>
+        <li><input type="checkbox"><label>Read a comma-separated line and convert it into a list.</label></li>
+        <li><input type="checkbox"><label>Catch multiple exception types in a single except clause.</label></li>
+        <li><input type="checkbox"><label>Create a custom exception class that inherits from Exception.</label></li>
+        <li><input type="checkbox"><label>Loop until user input is valid, using exception handling.</label></li>
+        <li><input type="checkbox"><label>Log bad input to a list instead of crashing the program.</label></li>
+      </ol></div>
+    </div>
+  </details>
+
+  <!-- LEVEL 3 -->
+  <details class="level">
+    <summary class="level-head">
+      <span class="level-num">3</span>
+      <span class="level-head-text">
+        <p class="level-title">Intro OOP</p>
+        <p class="level-sub">Comprehensions, sorting, your first classes, __init__ patterns</p>
+      </span>
+      <span class="level-count" data-progress="0/40">0/40</span>
+      <span class="chevron">▸</span>
+    </summary>
+    <div class="level-body">
+      <p class="level-note">Group C is the direct rehearsal for the attribute order + stdin-parsing pattern every one of your uploaded problems uses.</p>
+
+      <div class="group"><h4>A · Comprehensions &amp; sorting</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Rewrite a for-loop that builds a list of squares as a list comprehension.</label></li>
+        <li><input type="checkbox"><label>Use a list comprehension with a condition to keep only even numbers.</label></li>
+        <li><input type="checkbox"><label>Sort a list of dictionaries by one of their keys.</label></li>
+        <li><input type="checkbox"><label>Sort a list of numbers in descending order without reversing twice.</label></li>
+        <li><input type="checkbox"><label>Use sorted() with a custom key based on string length.</label></li>
+        <li><input type="checkbox"><label>Sort a list of tuples by a second key, then a first, as tiebreaker.</label></li>
+        <li><input type="checkbox"><label>Use a lambda as the key argument to sort a list of custom objects.</label></li>
+        <li><input type="checkbox"><label>Build a dictionary from two parallel lists in one comprehension.</label></li>
+        <li><input type="checkbox"><label>Use sorted() to rank a list of scores and print rank next to score.</label></li>
+        <li><input type="checkbox"><label>Filter and transform a list in a single comprehension.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>B · Classes &amp; objects</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Define a Person class with name and age, and create two instances.</label></li>
+        <li><input type="checkbox"><label>Add a greet() method that prints a greeting using self.name.</label></li>
+        <li><input type="checkbox"><label>Add a __str__ method so printing an instance gives readable output.</label></li>
+        <li><input type="checkbox"><label>Create a Circle class with radius and a method to compute its area.</label></li>
+        <li><input type="checkbox"><label>Create a Rectangle class and compare two instances by area.</label></li>
+        <li><input type="checkbox"><label>Add a class-level attribute shared by all instances, alongside instance attributes.</label></li>
+        <li><input type="checkbox"><label>Write a method that updates one of its own object's attributes.</label></li>
+        <li><input type="checkbox"><label>Create a BankAccount class with deposit and withdraw methods.</label></li>
+        <li><input type="checkbox"><label>Add validation inside a method (e.g. reject a negative deposit).</label></li>
+        <li><input type="checkbox"><label>Write two related classes where one class's method uses an instance of the other.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>C · __init__ &amp; attribute order</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Define __init__ with three parameters in a fixed order and set them as attributes.</label></li>
+        <li><input type="checkbox"><label>Give an __init__ parameter a default value and show what happens if it's omitted.</label></li>
+        <li><input type="checkbox"><label>Have __init__ strip and normalise a string input before storing it.</label></li>
+        <li><input type="checkbox"><label>Create a class whose __init__ takes a list and stores it as an attribute.</label></li>
+        <li><input type="checkbox"><label>Create a Book class with number, price, and title in a fixed attribute order.</label></li>
+        <li><input type="checkbox"><label>Build Book objects by reading their fields from input, one value per line.</label></li>
+        <li><input type="checkbox"><label>Read n, then build a list of n objects, reading each one's fields in order.</label></li>
+        <li><input type="checkbox"><label>Store that list of objects inside a container class, e.g. Library.</label></li>
+        <li><input type="checkbox"><label>Print an object's attributes one per line, matching an exact required format.</label></li>
+        <li><input type="checkbox"><label>Write the print logic that shows "No Data Found" when a method returns None.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>D · Methods over a list of objects</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Write a method that returns the first object in a list matching a name (linear search).</label></li>
+        <li><input type="checkbox"><label>Write a method that counts how many objects satisfy a condition.</label></li>
+        <li><input type="checkbox"><label>Write a method that returns True/False for whether any object matches a condition.</label></li>
+        <li><input type="checkbox"><label>Write a method that sums a numeric attribute across a list of objects.</label></li>
+        <li><input type="checkbox"><label>Write a method that averages a numeric attribute across a list of objects.</label></li>
+        <li><input type="checkbox"><label>Write a method that extracts just one attribute (e.g. all names) into a plain list.</label></li>
+        <li><input type="checkbox"><label>Write a method that removes objects matching a condition, returning what's left.</label></li>
+        <li><input type="checkbox"><label>Write a method that returns the object closest to a target value for some attribute.</label></li>
+        <li><input type="checkbox"><label>Return None cleanly when a method is called on an empty list of objects.</label></li>
+        <li><input type="checkbox"><label>Write the main() that reads n objects, builds the list, and calls one method above.</label></li>
+      </ol></div>
+    </div>
+  </details>
+
+  <!-- LEVEL 4 (n) -->
+  <details class="level tag-n">
+    <summary class="level-head">
+      <span class="level-num">n</span>
+      <span class="level-head-text">
+        <p class="level-title">Object lists — this is your uploaded level</p>
+        <p class="level-sub">Container class + list of objects + one or two methods + strict stdin format</p>
+      </span>
+      <span class="level-count" data-progress="0/30">0/30</span>
+      <span class="chevron">▸</span>
+    </summary>
+    <div class="level-body">
+      <p class="level-note">Groups B and C are literally your seven original problems, restated as goals rather than full specs — solve each from scratch, then check it against your original wording.</p>
+
+      <div class="group"><h4>A · Single search / filter method</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Simplify Wood/Furniture down to just findMinimumWoodByPrice.</label></li>
+        <li><input type="checkbox"><label>Simplify Vehicle/Store down to just findMinimumVehicleByPrice.</label></li>
+        <li><input type="checkbox"><label>Write a ProductCatalog method that returns all products under a given price.</label></li>
+        <li><input type="checkbox"><label>Write an isStockAvailable-style method that checks two combined conditions.</label></li>
+        <li><input type="checkbox"><label>Write a case-insensitive search method over a list of objects by a string attribute.</label></li>
+        <li><input type="checkbox"><label>Make a method return None (not an empty list) when nothing matches, and print "No Data Found" for it.</label></li>
+        <li><input type="checkbox"><label>Build a full main() for a two-class problem: read n, build objects, build the container, call one method, print the exact output.</label></li>
+        <li><input type="checkbox"><label>Write a method that filters by two attributes at once (e.g. type AND price).</label></li>
+        <li><input type="checkbox"><label>Given Chapter-style objects, find the one with minimum marks (Problem 1 from your set).</label></li>
+        <li><input type="checkbox"><label>Given Doctor-style objects, replicate the SQL doctor/patient logic in pure Python instead.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>B · Min/max finders &amp; sorting</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Write a findMinimumChapterByMarks-style method, deciding how ties are handled.</label></li>
+        <li><input type="checkbox"><label>Write a findMaximumVehicleByNumber-style method that returns None on an empty list.</label></li>
+        <li><input type="checkbox"><label>Write a sortChapterByPage-style method that returns a new list without mutating the original.</label></li>
+        <li><input type="checkbox"><label>Write a method that returns the top 3 objects by a numeric attribute.</label></li>
+        <li><input type="checkbox"><label>Sort objects by one attribute ascending, with a second attribute descending as tiebreaker.</label></li>
+        <li><input type="checkbox"><label>Write a method that returns both the max and min object in one call, as a tuple.</label></li>
+        <li><input type="checkbox"><label>Recreate the full Wood/Furniture problem end-to-end.</label></li>
+        <li><input type="checkbox"><label>Recreate the full Chapter/Exam problem end-to-end.</label></li>
+        <li><input type="checkbox"><label>Recreate the full Vehicle/Store problem end-to-end.</label></li>
+        <li><input type="checkbox"><label>Modify one of the above so ties break on a second attribute instead of "first found".</label></li>
+      </ol></div>
+
+      <div class="group"><h4>C · Strict stdin parsing &amp; the rest of your set</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Parse input where every field is on its own line, matching a HackerRank-style format exactly.</label></li>
+        <li><input type="checkbox"><label>Parse n, then read n groups of 5 lines each to build 5-attribute objects.</label></li>
+        <li><input type="checkbox"><label>Read a fixed batch of objects, then two extra trailing values as method parameters.</label></li>
+        <li><input type="checkbox"><label>Recreate Product/ProductManagementSystem end-to-end (case-insensitive lookups).</label></li>
+        <li><input type="checkbox"><label>Recreate Player/PlayerLeague end-to-end (non-English count + English players over a threshold, sorted).</label></li>
+        <li><input type="checkbox"><label>Recreate Realtor/HouseForSale end-to-end (furnished-type surcharge + price/type filter).</label></li>
+        <li><input type="checkbox"><label>Write the Student Grade Analyzer end-to-end without any classes.</label></li>
+        <li><input type="checkbox"><label>Rewrite the Student Grade Analyzer as OOP, with a Student class and a ClassRoom container.</label></li>
+        <li><input type="checkbox"><label>Solve BabySitter/Toddler in Python using two lists of objects and a join-like lookup.</label></li>
+        <li><input type="checkbox"><label>Solve Doctor/Patient in Python: group by doctor, count patients, filter by salary.</label></li>
+      </ol></div>
+    </div>
+  </details>
+
+  <!-- LEVEL 5 (n+1) -->
+  <details class="level tag-n1">
+    <summary class="level-head">
+      <span class="level-num">n+1</span>
+      <span class="level-head-text">
+        <p class="level-title">Systems — one rung past what you were given</p>
+        <p class="level-sub">Multi-class composition, derived metrics, hand-rolled joins</p>
+      </span>
+      <span class="level-count" data-progress="0/20">0/20</span>
+      <span class="chevron">▸</span>
+    </summary>
+    <div class="level-body">
+      <p class="level-note">Nothing here is a copy of your originals — each one extends a problem you already solved into something with a second moving part: nested objects, derived attributes, or a real SQL query to check your logic against.</p>
+
+      <div class="group"><h4>A · Combined filter + aggregate methods</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Extend Vehicle/Store: return the average price of all vehicles from a given manufacturer, parsed out of the name.</label></li>
+        <li><input type="checkbox"><label>Extend Chapter/Exam: return pass/fail for the whole exam based on the average of all marks.</label></li>
+        <li><input type="checkbox"><label>Extend Realtor: support a list of preferred house types and price bands, not just one of each.</label></li>
+        <li><input type="checkbox"><label>Extend ProductManagementSystem: rank products needing reorder by urgency (stock ÷ reorder quantity).</label></li>
+        <li><input type="checkbox"><label>Extend PlayerList: return each league's top scorer as a dictionary of league → Player.</label></li>
+        <li><input type="checkbox"><label>Add a method that computes the standard deviation of a numeric attribute across a list, without numpy.</label></li>
+        <li><input type="checkbox"><label>Add caching to a "find minimum" method so it only recomputes if the list changed since the last call.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>B · Composition &amp; nested object graphs</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Model a School containing multiple Exams, each with its own Chapters; find the hardest chapter school-wide.</label></li>
+        <li><input type="checkbox"><label>Model a City containing multiple Stores; find the single cheapest vehicle across all of them.</label></li>
+        <li><input type="checkbox"><label>Model a Hospital with many Doctors, each holding their own Patients; mirror the original SQL query across the object graph.</label></li>
+        <li><input type="checkbox"><label>Model a League of Clubs, each holding Players; find the club with the highest combined goals.</label></li>
+        <li><input type="checkbox"><label>Add an Order class that references a Product by ID rather than holding it directly, and resolve that reference in a method.</label></li>
+        <li><input type="checkbox"><label>Implement a simple observer: a Vehicle's price change notifies its Store to refresh a cached "cheapest vehicle".</label></li>
+        <li><input type="checkbox"><label>Add inheritance: a base Employee class with Doctor extending it, and a search method that works over a mixed list polymorphically.</label></li>
+      </ol></div>
+
+      <div class="group"><h4>C · SQL logic, done by hand and for real</h4><ol class="qlist">
+        <li><input type="checkbox"><label>Write the real SQL for BabySitter/Toddler (JOIN + WHERE age &lt; 18) and check it against your Python version.</label></li>
+        <li><input type="checkbox"><label>Write the real SQL for Doctor/Patient (JOIN + GROUP BY + HAVING salary &gt; 100000) and check it against your Python version.</label></li>
+        <li><input type="checkbox"><label>Given two lists standing in for two SQL tables, implement an INNER JOIN, a LEFT JOIN, and a GROUP BY…HAVING purely in Python.</label></li>
+        <li><input type="checkbox"><label>Extend Doctor/Patient: per specialist, average the salary of doctors who've seen at least one patient.</label></li>
+        <li><input type="checkbox"><label>Given Exam objects, sort by a derived "difficulty" score: the average of (marks ÷ page) across their chapters.</label></li>
+        <li><input type="checkbox"><label>Take one full problem from your original set and rewrite its main() so bad n, missing fields, or non-numeric input never crash it.</label></li>
+      </ol></div>
+    </div>
+  </details>
+
+</main>
+
+<footer class="wrap">
+  Work top to bottom, but skip anything you can already do — checking a box is the point, not clicking through in order.
+  Levels n and n+1 map directly onto the seven problems and two SQL joins you uploaded; everything above them is what makes those solvable without guessing at syntax mid-problem.
+</footer>
+
+<script>
+  const levels = document.querySelectorAll('details.level');
+  let totalChecked = 0, totalAll = 0;
+
+  function updateAll(){
+    totalChecked = 0; totalAll = 0;
+    levels.forEach(level => {
+      const boxes = level.querySelectorAll('input[type=checkbox]');
+      const checked = level.querySelectorAll('input[type=checkbox]:checked').length;
+      const countEl = level.querySelector('.level-count');
+      countEl.textContent = checked + '/' + boxes.length;
+      totalChecked += checked;
+      totalAll += boxes.length;
+    });
+    document.getElementById('overallCount').textContent = totalChecked + ' / ' + totalAll;
+    document.getElementById('overallFill').style.width = (totalAll ? (totalChecked/totalAll*100) : 0) + '%';
+  }
+
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', updateAll);
+  });
+
+  updateAll();
+</script>
+
+</body>
+</html>
