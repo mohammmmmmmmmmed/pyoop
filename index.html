@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice ladders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10161d; --surface:#182029; --surface-2:#1f2933; --line:#2b3743;
+  --ink:#e7ebee; --ink-dim:#97a4b0; --ink-faint:#5f6d7a; --amber:#e2a659;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;}
+a{color:inherit;}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:3px;}
+.page{max-width:980px;margin:0 auto;padding:64px 20px 96px;}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(36px,8vw,56px);line-height:1.04;margin:0 0 16px;letter-spacing:-.01em;}
+.lede{color:var(--ink-dim);font-size:17px;max-width:52ch;margin:0;}
+.totals{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--ink-dim);margin:22px 0 0;}
+.group{margin-top:60px;}
+.group h2{display:flex;align-items:center;gap:10px;font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:22px;margin:0 0 4px;}
+.group h2::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--gc);flex:none;}
+.ladder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:22px 48px;padding:28px 0 30px;border-top:1px solid var(--line);}
+.group h2 + .ladder{margin-top:14px;}
+.name{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:30px;line-height:1.1;margin:0 0 10px;}
+.name a{text-decoration:underline;text-decoration-color:var(--gc);text-decoration-thickness:2px;text-underline-offset:6px;}
+.name a:hover{color:var(--amber);text-decoration-color:var(--amber);}
+.desc{margin:0 0 14px;color:var(--ink-dim);max-width:58ch;}
+.facts{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0 0 6px;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--ink-dim);}
+.facts b{color:var(--ink);font-weight:500;}
+.lv{margin-top:14px;}
+.lv summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;}
+.lv summary::-webkit-details-marker{display:none;}
+.lv summary::after{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);}
+.lv[open] summary::after{transform:translateY(1px) rotate(225deg);}
+.lv summary:hover{border-color:var(--ink-faint);}
+.lv ol{list-style:none;margin:6px 0 0;padding:0;max-width:560px;}
+.lv li a{display:flex;gap:12px;align-items:baseline;padding:7px 8px;margin:0 -8px;border-radius:6px;text-decoration:none;font-size:14.5px;line-height:1.35;}
+.lv li a:hover{background:var(--surface);}
+.lv .n{flex:none;min-width:2.6em;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--ink-dim);}
+.lv .t{flex:1;min-width:0;}
+.lv .c{flex:none;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--ink-dim);}
+.rungs{display:flex;align-items:flex-end;gap:4px;height:84px;border-bottom:1px solid var(--line);}
+.rung{flex:1 1 0;min-width:0;height:100%;display:flex;align-items:flex-end;}
+.rung i{display:block;width:100%;height:var(--h);background:var(--surface-2);border:1px solid var(--gc);border-bottom:0;border-radius:3px 3px 0 0;transition:background-color .12s;}
+.rung:hover i,.rung:focus-visible i{background:var(--gc);}
+.rung:focus-visible{outline-offset:2px;}
+.rung-caption{margin:9px 0 0;min-height:2.9em;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.45;color:var(--ink-dim);}
+@media (max-width:760px){
+  .page{padding-top:44px;}
+  .ladder{grid-template-columns:minmax(0,1fr);gap:18px;}
+  .name{font-size:27px;}
+  .lede{font-size:16px;}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .rung i{transition:none;}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <h1>Practice ladders</h1>
+    <p class="lede">Question sets for Python and data work, each climbing from the basics to interview-level problems. Open a ladder, or jump straight to a level.</p>
+    <p class="totals">6 ladders, 68 levels, 1,387 questions</p>
+  </header>
+  <section class="group" style="--gc:#7fb69a" aria-labelledby="g-foundations">
+    <h2 id="g-foundations">Foundations</h2>
+    <article class="ladder" style="--gc:#7fb69a">
+      <div class="info">
+        <h3 class="name"><a href="data_fundamentals_ladder-2.html">Data Fundamentals</a></h3>
+        <p class="desc">What data is and how it is classified, measured, sampled and cleaned, finishing with ethics and case studies.</p>
+        <p class="facts"><span><b>200</b> questions</span><span>73 code</span><span>127 multiple choice</span><span>lesson in every level</span></p>
+        <details class="lv">
+          <summary>12 levels</summary>
+          <ol>
+        <li><a href="data_fundamentals_ladder-2.html#level-1"><span class="n">1</span><span class="t">What Is Data?</span><span class="c">11</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-2"><span class="n">2</span><span class="t">Qualitative vs Quantitative Data</span><span class="c">13</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-3"><span class="n">3</span><span class="t">Structured, Semi-Structured &amp; Unstructured Data</span><span class="c">11</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-4"><span class="n">4</span><span class="t">Levels of Measurement</span><span class="c">12</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-5"><span class="n">5</span><span class="t">Data Collection Methods</span><span class="c">11</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-6"><span class="n">6</span><span class="t">Population, Samples &amp; Sampling Techniques</span><span class="c">12</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-7"><span class="n">7</span><span class="t">Understanding Variables</span><span class="c">9</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-8"><span class="n">8</span><span class="t">Data Quality Fundamentals</span><span class="c">11</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-9"><span class="n">9</span><span class="t">Big Data &amp; File Formats</span><span class="c">11</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-10"><span class="n">10</span><span class="t">Data Ethics, Privacy &amp; Bias</span><span class="c">12</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-11"><span class="n">11</span><span class="t">Bringing It Together: Case Studies</span><span class="c">14</span></a></li>
+        <li><a href="data_fundamentals_ladder-2.html#level-12"><span class="n">12</span><span class="t">Final Review &amp; Interview Practice</span><span class="c">73</span></a></li>
+          </ol>
+        </details>
+      </div>
+      <div class="chart">
+        <div class="rungs" role="group" aria-label="Data Fundamentals levels">
+          <a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-1" aria-label="Level 1, What Is Data?, 11 questions" data-caption="1  What Is Data?, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-2" aria-label="Level 2, Qualitative vs Quantitative Data, 13 questions" data-caption="2  Qualitative vs Quantitative Data, 13 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-3" aria-label="Level 3, Structured, Semi-Structured &amp; Unstructured Data, 11 questions" data-caption="3  Structured, Semi-Structured &amp; Unstructured Data, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-4" aria-label="Level 4, Levels of Measurement, 12 questions" data-caption="4  Levels of Measurement, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-5" aria-label="Level 5, Data Collection Methods, 11 questions" data-caption="5  Data Collection Methods, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-6" aria-label="Level 6, Population, Samples &amp; Sampling Techniques, 12 questions" data-caption="6  Population, Samples &amp; Sampling Techniques, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-7" aria-label="Level 7, Understanding Variables, 9 questions" data-caption="7  Understanding Variables, 9 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-8" aria-label="Level 8, Data Quality Fundamentals, 11 questions" data-caption="8  Data Quality Fundamentals, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-9" aria-label="Level 9, Big Data &amp; File Formats, 11 questions" data-caption="9  Big Data &amp; File Formats, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="data_fundamentals_ladder-2.html#level-10" aria-label="Level 10, Data Ethics, Privacy &amp; Bias, 12 questions" data-caption="10  Data Ethics, Privacy &amp; Bias, 12 questions"><i></i></a><a class="rung" style="--h:19%" href="data_fundamentals_ladder-2.html#level-11" aria-label="Level 11, Bringing It Together: Case Studies, 14 questions" data-caption="11  Bringing It Together: Case Studies, 14 questions"><i></i></a><a class="rung" style="--h:100%" href="data_fundamentals_ladder-2.html#level-12" aria-label="Level 12, Final Review &amp; Interview Practice, 73 questions" data-caption="12  Final Review &amp; Interview Practice, 73 questions"><i></i></a>
+        </div>
+        <p class="rung-caption" aria-hidden="true">Each bar is one level. Taller bars have more questions.</p>
+      </div>
+    </article>
+    <article class="ladder" style="--gc:#7fb69a">
+      <div class="info">
+        <h3 class="name"><a href="python-oop-ladder-2.html">Python &amp; OOP</a></h3>
+        <p class="desc">From print() up to multi-class systems, plus SQL and AWK tracks that reuse the same Employee and Department data.</p>
+        <p class="facts"><span><b>387</b> questions</span><span>all code</span></p>
+        <details class="lv">
+          <summary>8 levels</summary>
+          <ol>
+        <li><a href="python-oop-ladder-2.html#level-1"><span class="n">1</span><span class="t">Basics</span><span class="c">84</span></a></li>
+        <li><a href="python-oop-ladder-2.html#level-2"><span class="n">2</span><span class="t">Data structures &amp; functions</span><span class="c">72</span></a></li>
+        <li><a href="python-oop-ladder-2.html#level-3"><span class="n">3</span><span class="t">Intro OOP</span><span class="c">64</span></a></li>
+        <li><a href="python-oop-ladder-2.html#level-4"><span class="n">n</span><span class="t">Object lists — this is your uploaded level</span><span class="c">51</span></a></li>
+        <li><a href="python-oop-ladder-2.html#level-5"><span class="n">n+1</span><span class="t">Systems — one rung past what you were given</span><span class="c">38</span></a></li>
+        <li><a href="python-oop-ladder-2.html#level-6"><span class="n">n+2</span><span class="t">Beyond systems — n+2</span><span class="c">24</span></a></li>
+        <li><a href="python-oop-ladder-2.html#level-7"><span class="n">SQL</span><span class="t">SQL</span><span class="c">30</span></a></li>
+        <li><a href="python-oop-ladder-2.html#level-8"><span class="n">AWK</span><span class="t">Unix: AWK</span><span class="c">24</span></a></li>
+          </ol>
+        </details>
+      </div>
+      <div class="chart">
+        <div class="rungs" role="group" aria-label="Python &amp; OOP levels">
+          <a class="rung" style="--h:100%" href="python-oop-ladder-2.html#level-1" aria-label="Level 1, Basics, 84 questions" data-caption="1  Basics, 84 questions"><i></i></a><a class="rung" style="--h:86%" href="python-oop-ladder-2.html#level-2" aria-label="Level 2, Data structures &amp; functions, 72 questions" data-caption="2  Data structures &amp; functions, 72 questions"><i></i></a><a class="rung" style="--h:76%" href="python-oop-ladder-2.html#level-3" aria-label="Level 3, Intro OOP, 64 questions" data-caption="3  Intro OOP, 64 questions"><i></i></a><a class="rung" style="--h:61%" href="python-oop-ladder-2.html#level-4" aria-label="Level n, Object lists — this is your uploaded level, 51 questions" data-caption="n  Object lists — this is your uploaded level, 51 questions"><i></i></a><a class="rung" style="--h:45%" href="python-oop-ladder-2.html#level-5" aria-label="Level n+1, Systems — one rung past what you were given, 38 questions" data-caption="n+1  Systems — one rung past what you were given, 38 questions"><i></i></a><a class="rung" style="--h:29%" href="python-oop-ladder-2.html#level-6" aria-label="Level n+2, Beyond systems — n+2, 24 questions" data-caption="n+2  Beyond systems — n+2, 24 questions"><i></i></a><a class="rung" style="--h:36%" href="python-oop-ladder-2.html#level-7" aria-label="Level SQL, SQL, 30 questions" data-caption="SQL  SQL, 30 questions"><i></i></a><a class="rung" style="--h:29%" href="python-oop-ladder-2.html#level-8" aria-label="Level AWK, Unix: AWK, 24 questions" data-caption="AWK  Unix: AWK, 24 questions"><i></i></a>
+        </div>
+        <p class="rung-caption" aria-hidden="true">Each bar is one level. Taller bars have more questions.</p>
+      </div>
+    </article>
+  </section>
+  <section class="group" style="--gc:#7c9fd6" aria-labelledby="g-libraries">
+    <h2 id="g-libraries">Libraries</h2>
+    <article class="ladder" style="--gc:#7c9fd6">
+      <div class="info">
+        <h3 class="name"><a href="numpy_ladder-2.html">NumPy</a></h3>
+        <p class="desc">Arrays and indexing through broadcasting, linear algebra, structured arrays and einsum.</p>
+        <p class="facts"><span><b>200</b> questions</span><span>144 code</span><span>56 multiple choice</span></p>
+        <details class="lv">
+          <summary>10 levels</summary>
+          <ol>
+        <li><a href="numpy_ladder-2.html#level-1"><span class="n">1</span><span class="t">NumPy Basics</span><span class="c">32</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-2"><span class="n">2</span><span class="t">Indexing &amp; Slicing</span><span class="c">29</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-3"><span class="n">3</span><span class="t">Operations &amp; Broadcasting</span><span class="c">24</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-4"><span class="n">4</span><span class="t">Aggregation &amp; Statistics</span><span class="c">18</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-5"><span class="n">5</span><span class="t">Reshaping &amp; Manipulation</span><span class="c">16</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-6"><span class="n">6</span><span class="t">Linear Algebra</span><span class="c">15</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-7"><span class="n">7</span><span class="t">Random &amp; Advanced Indexing</span><span class="c">16</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-8"><span class="n">8</span><span class="t">Dtypes, Structured Arrays &amp; Masked Arrays</span><span class="c">18</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-9"><span class="n">9</span><span class="t">Advanced: Performance, einsum &amp; Internals</span><span class="c">20</span></a></li>
+        <li><a href="numpy_ladder-2.html#level-10"><span class="n">10</span><span class="t">Mixed Practice &amp; Interview Style</span><span class="c">12</span></a></li>
+          </ol>
+        </details>
+      </div>
+      <div class="chart">
+        <div class="rungs" role="group" aria-label="NumPy levels">
+          <a class="rung" style="--h:100%" href="numpy_ladder-2.html#level-1" aria-label="Level 1, NumPy Basics, 32 questions" data-caption="1  NumPy Basics, 32 questions"><i></i></a><a class="rung" style="--h:91%" href="numpy_ladder-2.html#level-2" aria-label="Level 2, Indexing &amp; Slicing, 29 questions" data-caption="2  Indexing &amp; Slicing, 29 questions"><i></i></a><a class="rung" style="--h:75%" href="numpy_ladder-2.html#level-3" aria-label="Level 3, Operations &amp; Broadcasting, 24 questions" data-caption="3  Operations &amp; Broadcasting, 24 questions"><i></i></a><a class="rung" style="--h:56%" href="numpy_ladder-2.html#level-4" aria-label="Level 4, Aggregation &amp; Statistics, 18 questions" data-caption="4  Aggregation &amp; Statistics, 18 questions"><i></i></a><a class="rung" style="--h:50%" href="numpy_ladder-2.html#level-5" aria-label="Level 5, Reshaping &amp; Manipulation, 16 questions" data-caption="5  Reshaping &amp; Manipulation, 16 questions"><i></i></a><a class="rung" style="--h:47%" href="numpy_ladder-2.html#level-6" aria-label="Level 6, Linear Algebra, 15 questions" data-caption="6  Linear Algebra, 15 questions"><i></i></a><a class="rung" style="--h:50%" href="numpy_ladder-2.html#level-7" aria-label="Level 7, Random &amp; Advanced Indexing, 16 questions" data-caption="7  Random &amp; Advanced Indexing, 16 questions"><i></i></a><a class="rung" style="--h:56%" href="numpy_ladder-2.html#level-8" aria-label="Level 8, Dtypes, Structured Arrays &amp; Masked Arrays, 18 questions" data-caption="8  Dtypes, Structured Arrays &amp; Masked Arrays, 18 questions"><i></i></a><a class="rung" style="--h:62%" href="numpy_ladder-2.html#level-9" aria-label="Level 9, Advanced: Performance, einsum &amp; Internals, 20 questions" data-caption="9  Advanced: Performance, einsum &amp; Internals, 20 questions"><i></i></a><a class="rung" style="--h:38%" href="numpy_ladder-2.html#level-10" aria-label="Level 10, Mixed Practice &amp; Interview Style, 12 questions" data-caption="10  Mixed Practice &amp; Interview Style, 12 questions"><i></i></a>
+        </div>
+        <p class="rung-caption" aria-hidden="true">Each bar is one level. Taller bars have more questions.</p>
+      </div>
+    </article>
+    <article class="ladder" style="--gc:#7c9fd6">
+      <div class="info">
+        <h3 class="name"><a href="pandas_ladder-1.html">Pandas</a></h3>
+        <p class="desc">Series and DataFrames through groupby, merges, time series, MultiIndex and classic gotchas.</p>
+        <p class="facts"><span><b>200</b> questions</span><span>139 code</span><span>61 multiple choice</span></p>
+        <details class="lv">
+          <summary>12 levels</summary>
+          <ol>
+        <li><a href="pandas_ladder-1.html#level-1"><span class="n">1</span><span class="t">Pandas Basics</span><span class="c">22</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-2"><span class="n">2</span><span class="t">Selection &amp; Indexing</span><span class="c">23</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-3"><span class="n">3</span><span class="t">Data Cleaning &amp; Missing Data</span><span class="c">21</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-4"><span class="n">4</span><span class="t">Operations, Apply &amp; Vectorization</span><span class="c">12</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-5"><span class="n">5</span><span class="t">GroupBy &amp; Aggregation</span><span class="c">13</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-6"><span class="n">6</span><span class="t">Merging, Joining &amp; Concatenation</span><span class="c">12</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-7"><span class="n">7</span><span class="t">Reshaping: Pivot, Melt &amp; Stack</span><span class="c">12</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-8"><span class="n">8</span><span class="t">Time Series</span><span class="c">18</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-9"><span class="n">9</span><span class="t">Advanced: MultiIndex, Categorical &amp; Performance</span><span class="c">19</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-10"><span class="n">10</span><span class="t">Real-World Data Wrangling</span><span class="c">12</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-11"><span class="n">11</span><span class="t">Interview &amp; Mixed Practice</span><span class="c">16</span></a></li>
+        <li><a href="pandas_ladder-1.html#level-12"><span class="n">12</span><span class="t">Common Gotchas &amp; Best Practices</span><span class="c">20</span></a></li>
+          </ol>
+        </details>
+      </div>
+      <div class="chart">
+        <div class="rungs" role="group" aria-label="Pandas levels">
+          <a class="rung" style="--h:96%" href="pandas_ladder-1.html#level-1" aria-label="Level 1, Pandas Basics, 22 questions" data-caption="1  Pandas Basics, 22 questions"><i></i></a><a class="rung" style="--h:100%" href="pandas_ladder-1.html#level-2" aria-label="Level 2, Selection &amp; Indexing, 23 questions" data-caption="2  Selection &amp; Indexing, 23 questions"><i></i></a><a class="rung" style="--h:91%" href="pandas_ladder-1.html#level-3" aria-label="Level 3, Data Cleaning &amp; Missing Data, 21 questions" data-caption="3  Data Cleaning &amp; Missing Data, 21 questions"><i></i></a><a class="rung" style="--h:52%" href="pandas_ladder-1.html#level-4" aria-label="Level 4, Operations, Apply &amp; Vectorization, 12 questions" data-caption="4  Operations, Apply &amp; Vectorization, 12 questions"><i></i></a><a class="rung" style="--h:57%" href="pandas_ladder-1.html#level-5" aria-label="Level 5, GroupBy &amp; Aggregation, 13 questions" data-caption="5  GroupBy &amp; Aggregation, 13 questions"><i></i></a><a class="rung" style="--h:52%" href="pandas_ladder-1.html#level-6" aria-label="Level 6, Merging, Joining &amp; Concatenation, 12 questions" data-caption="6  Merging, Joining &amp; Concatenation, 12 questions"><i></i></a><a class="rung" style="--h:52%" href="pandas_ladder-1.html#level-7" aria-label="Level 7, Reshaping: Pivot, Melt &amp; Stack, 12 questions" data-caption="7  Reshaping: Pivot, Melt &amp; Stack, 12 questions"><i></i></a><a class="rung" style="--h:78%" href="pandas_ladder-1.html#level-8" aria-label="Level 8, Time Series, 18 questions" data-caption="8  Time Series, 18 questions"><i></i></a><a class="rung" style="--h:83%" href="pandas_ladder-1.html#level-9" aria-label="Level 9, Advanced: MultiIndex, Categorical &amp; Performance, 19 questions" data-caption="9  Advanced: MultiIndex, Categorical &amp; Performance, 19 questions"><i></i></a><a class="rung" style="--h:52%" href="pandas_ladder-1.html#level-10" aria-label="Level 10, Real-World Data Wrangling, 12 questions" data-caption="10  Real-World Data Wrangling, 12 questions"><i></i></a><a class="rung" style="--h:70%" href="pandas_ladder-1.html#level-11" aria-label="Level 11, Interview &amp; Mixed Practice, 16 questions" data-caption="11  Interview &amp; Mixed Practice, 16 questions"><i></i></a><a class="rung" style="--h:87%" href="pandas_ladder-1.html#level-12" aria-label="Level 12, Common Gotchas &amp; Best Practices, 20 questions" data-caption="12  Common Gotchas &amp; Best Practices, 20 questions"><i></i></a>
+        </div>
+        <p class="rung-caption" aria-hidden="true">Each bar is one level. Taller bars have more questions.</p>
+      </div>
+    </article>
+  </section>
+  <section class="group" style="--gc:#b98fd6" aria-labelledby="g-math">
+    <h2 id="g-math">Math</h2>
+    <article class="ladder" style="--gc:#b98fd6">
+      <div class="info">
+        <h3 class="name"><a href="linear_algebra_ladder-1.html">Linear Algebra</a></h3>
+        <p class="desc">Vectors and matrices through eigenvalues, decompositions, SVD and PCA.</p>
+        <p class="facts"><span><b>200</b> questions</span><span>105 code</span><span>95 multiple choice</span><span>lesson in every level</span></p>
+        <details class="lv">
+          <summary>12 levels</summary>
+          <ol>
+        <li><a href="linear_algebra_ladder-1.html#level-1"><span class="n">1</span><span class="t">Vectors: Basics &amp; Operations</span><span class="c">12</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-2"><span class="n">2</span><span class="t">Dot Product &amp; Vector Projections</span><span class="c">11</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-3"><span class="n">3</span><span class="t">Linear Independence, Span &amp; Basis</span><span class="c">10</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-4"><span class="n">4</span><span class="t">Matrices: Basics &amp; Operations</span><span class="c">12</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-5"><span class="n">5</span><span class="t">Matrix Multiplication</span><span class="c">12</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-6"><span class="n">6</span><span class="t">Determinants</span><span class="c">11</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-7"><span class="n">7</span><span class="t">Matrix Inverse &amp; Linear Systems</span><span class="c">11</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-8"><span class="n">8</span><span class="t">Rank, Null Space &amp; Gaussian Elimination</span><span class="c">10</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-9"><span class="n">9</span><span class="t">Eigenvalues &amp; Eigenvectors</span><span class="c">12</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-10"><span class="n">10</span><span class="t">LU &amp; QR Decompositions</span><span class="c">9</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-11"><span class="n">11</span><span class="t">Eigendecomposition &amp; SVD</span><span class="c">11</span></a></li>
+        <li><a href="linear_algebra_ladder-1.html#level-12"><span class="n">12</span><span class="t">PCA in Practice &amp; Final Review</span><span class="c">79</span></a></li>
+          </ol>
+        </details>
+      </div>
+      <div class="chart">
+        <div class="rungs" role="group" aria-label="Linear Algebra levels">
+          <a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-1" aria-label="Level 1, Vectors: Basics &amp; Operations, 12 questions" data-caption="1  Vectors: Basics &amp; Operations, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-2" aria-label="Level 2, Dot Product &amp; Vector Projections, 11 questions" data-caption="2  Dot Product &amp; Vector Projections, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-3" aria-label="Level 3, Linear Independence, Span &amp; Basis, 10 questions" data-caption="3  Linear Independence, Span &amp; Basis, 10 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-4" aria-label="Level 4, Matrices: Basics &amp; Operations, 12 questions" data-caption="4  Matrices: Basics &amp; Operations, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-5" aria-label="Level 5, Matrix Multiplication, 12 questions" data-caption="5  Matrix Multiplication, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-6" aria-label="Level 6, Determinants, 11 questions" data-caption="6  Determinants, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-7" aria-label="Level 7, Matrix Inverse &amp; Linear Systems, 11 questions" data-caption="7  Matrix Inverse &amp; Linear Systems, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-8" aria-label="Level 8, Rank, Null Space &amp; Gaussian Elimination, 10 questions" data-caption="8  Rank, Null Space &amp; Gaussian Elimination, 10 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-9" aria-label="Level 9, Eigenvalues &amp; Eigenvectors, 12 questions" data-caption="9  Eigenvalues &amp; Eigenvectors, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-10" aria-label="Level 10, LU &amp; QR Decompositions, 9 questions" data-caption="10  LU &amp; QR Decompositions, 9 questions"><i></i></a><a class="rung" style="--h:18%" href="linear_algebra_ladder-1.html#level-11" aria-label="Level 11, Eigendecomposition &amp; SVD, 11 questions" data-caption="11  Eigendecomposition &amp; SVD, 11 questions"><i></i></a><a class="rung" style="--h:100%" href="linear_algebra_ladder-1.html#level-12" aria-label="Level 12, PCA in Practice &amp; Final Review, 79 questions" data-caption="12  PCA in Practice &amp; Final Review, 79 questions"><i></i></a>
+        </div>
+        <p class="rung-caption" aria-hidden="true">Each bar is one level. Taller bars have more questions.</p>
+      </div>
+    </article>
+    <article class="ladder" style="--gc:#b98fd6">
+      <div class="info">
+        <h3 class="name"><a href="stats_probability_ladder-1.html">Statistics &amp; Probability</a></h3>
+        <p class="desc">Descriptive statistics and probability through distributions, the Central Limit Theorem, hypothesis tests and confidence intervals.</p>
+        <p class="facts"><span><b>200</b> questions</span><span>100 code</span><span>100 multiple choice</span><span>lesson in every level</span></p>
+        <details class="lv">
+          <summary>14 levels</summary>
+          <ol>
+        <li><a href="stats_probability_ladder-1.html#level-1"><span class="n">1</span><span class="t">Measures of Central Tendency</span><span class="c">14</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-2"><span class="n">2</span><span class="t">Measures of Spread &amp; Shape</span><span class="c">12</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-3"><span class="n">3</span><span class="t">Visualizing Distributions</span><span class="c">8</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-4"><span class="n">4</span><span class="t">Probability Basics</span><span class="c">11</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-5"><span class="n">5</span><span class="t">Conditional Probability &amp; Bayes&#x27; Theorem</span><span class="c">10</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-6"><span class="n">6</span><span class="t">Independence &amp; Combinatorics</span><span class="c">13</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-7"><span class="n">7</span><span class="t">Random Variables &amp; Expectation</span><span class="c">9</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-8"><span class="n">8</span><span class="t">Discrete Probability Distributions</span><span class="c">12</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-9"><span class="n">9</span><span class="t">Continuous Distributions: Uniform &amp; Exponential</span><span class="c">10</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-10"><span class="n">10</span><span class="t">The Normal Distribution &amp; Z-scores</span><span class="c">11</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-11"><span class="n">11</span><span class="t">Sampling Distributions &amp; the Central Limit Theorem</span><span class="c">7</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-12"><span class="n">12</span><span class="t">Hypothesis Testing Fundamentals</span><span class="c">12</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-13"><span class="n">13</span><span class="t">Confidence Intervals</span><span class="c">7</span></a></li>
+        <li><a href="stats_probability_ladder-1.html#level-14"><span class="n">14</span><span class="t">Correlation, Covariance &amp; Final Review</span><span class="c">64</span></a></li>
+          </ol>
+        </details>
+      </div>
+      <div class="chart">
+        <div class="rungs" role="group" aria-label="Statistics &amp; Probability levels">
+          <a class="rung" style="--h:22%" href="stats_probability_ladder-1.html#level-1" aria-label="Level 1, Measures of Central Tendency, 14 questions" data-caption="1  Measures of Central Tendency, 14 questions"><i></i></a><a class="rung" style="--h:19%" href="stats_probability_ladder-1.html#level-2" aria-label="Level 2, Measures of Spread &amp; Shape, 12 questions" data-caption="2  Measures of Spread &amp; Shape, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-3" aria-label="Level 3, Visualizing Distributions, 8 questions" data-caption="3  Visualizing Distributions, 8 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-4" aria-label="Level 4, Probability Basics, 11 questions" data-caption="4  Probability Basics, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-5" aria-label="Level 5, Conditional Probability &amp; Bayes&#x27; Theorem, 10 questions" data-caption="5  Conditional Probability &amp; Bayes&#x27; Theorem, 10 questions"><i></i></a><a class="rung" style="--h:20%" href="stats_probability_ladder-1.html#level-6" aria-label="Level 6, Independence &amp; Combinatorics, 13 questions" data-caption="6  Independence &amp; Combinatorics, 13 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-7" aria-label="Level 7, Random Variables &amp; Expectation, 9 questions" data-caption="7  Random Variables &amp; Expectation, 9 questions"><i></i></a><a class="rung" style="--h:19%" href="stats_probability_ladder-1.html#level-8" aria-label="Level 8, Discrete Probability Distributions, 12 questions" data-caption="8  Discrete Probability Distributions, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-9" aria-label="Level 9, Continuous Distributions: Uniform &amp; Exponential, 10 questions" data-caption="9  Continuous Distributions: Uniform &amp; Exponential, 10 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-10" aria-label="Level 10, The Normal Distribution &amp; Z-scores, 11 questions" data-caption="10  The Normal Distribution &amp; Z-scores, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-11" aria-label="Level 11, Sampling Distributions &amp; the Central Limit Theorem, 7 questions" data-caption="11  Sampling Distributions &amp; the Central Limit Theorem, 7 questions"><i></i></a><a class="rung" style="--h:19%" href="stats_probability_ladder-1.html#level-12" aria-label="Level 12, Hypothesis Testing Fundamentals, 12 questions" data-caption="12  Hypothesis Testing Fundamentals, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-13" aria-label="Level 13, Confidence Intervals, 7 questions" data-caption="13  Confidence Intervals, 7 questions"><i></i></a><a class="rung" style="--h:100%" href="stats_probability_ladder-1.html#level-14" aria-label="Level 14, Correlation, Covariance &amp; Final Review, 64 questions" data-caption="14  Correlation, Covariance &amp; Final Review, 64 questions"><i></i></a>
+        </div>
+        <p class="rung-caption" aria-hidden="true">Each bar is one level. Taller bars have more questions.</p>
+      </div>
+    </article>
+  </section>
+</main>
+<script>
+(function(){
+  var boxes = document.querySelectorAll('.rungs');
+  Array.prototype.forEach.call(boxes, function(box){
+    var cap = box.parentNode.querySelector('.rung-caption');
+    if (!cap) return;
+    var dflt = cap.textContent;
+    function show(e){
+      var r = e.target.closest ? e.target.closest('.rung') : null;
+      if (r) cap.textContent = r.getAttribute('data-caption');
+    }
+    function reset(){ cap.textContent = dflt; }
+    box.addEventListener('mouseover', show);
+    box.addEventListener('focusin', show);
+    box.addEventListener('mouseleave', reset);
+    box.addEventListener('focusout', reset);
+  });
+})();
+</script>
+</body>
+</html>
