@@ -59,14 +59,20 @@ h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(36px,8vw
   html{scroll-behavior:auto;}
   .rung i{transition:none;}
 }
+.ladder.solo{display:block;padding:28px 0 30px;border-top:1px solid var(--line);}
+.ladder.solo .desc{max-width:64ch;}
+.topics{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none;}
+.topics li{margin:0;}
+.pill{display:inline-block;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--ink-dim);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:6px 12px;line-height:1.2;text-decoration:none;}
+a.pill:hover{border-color:var(--ink-faint);color:var(--ink);}
 </style>
 </head>
 <body>
 <main class="page">
   <header>
     <h1>Practice ladders</h1>
-    <p class="lede">Question sets for Python and data work, each climbing from the basics to interview-level problems. Open a ladder, or jump straight to a level.</p>
-    <p class="totals">6 ladders, 68 levels, 1,387 questions</p>
+    <p class="lede">Question sets for Python and data work, each climbing from the basics to interview-level problems. Open a ladder, or jump straight to a level. Two extra resources round things out: a 1,900-problem practice bank and an interactive lessons-plus-quiz guide.</p>
+    <p class="totals">8 resources, 68 levels, 3,540 questions</p>
   </header>
   <section class="group" style="--gc:#7fb69a" aria-labelledby="g-foundations">
     <h2 id="g-foundations">Foundations</h2>
@@ -250,6 +256,51 @@ h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(36px,8vw
           <a class="rung" style="--h:22%" href="stats_probability_ladder-1.html#level-1" aria-label="Level 1, Measures of Central Tendency, 14 questions" data-caption="1  Measures of Central Tendency, 14 questions"><i></i></a><a class="rung" style="--h:19%" href="stats_probability_ladder-1.html#level-2" aria-label="Level 2, Measures of Spread &amp; Shape, 12 questions" data-caption="2  Measures of Spread &amp; Shape, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-3" aria-label="Level 3, Visualizing Distributions, 8 questions" data-caption="3  Visualizing Distributions, 8 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-4" aria-label="Level 4, Probability Basics, 11 questions" data-caption="4  Probability Basics, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-5" aria-label="Level 5, Conditional Probability &amp; Bayes&#x27; Theorem, 10 questions" data-caption="5  Conditional Probability &amp; Bayes&#x27; Theorem, 10 questions"><i></i></a><a class="rung" style="--h:20%" href="stats_probability_ladder-1.html#level-6" aria-label="Level 6, Independence &amp; Combinatorics, 13 questions" data-caption="6  Independence &amp; Combinatorics, 13 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-7" aria-label="Level 7, Random Variables &amp; Expectation, 9 questions" data-caption="7  Random Variables &amp; Expectation, 9 questions"><i></i></a><a class="rung" style="--h:19%" href="stats_probability_ladder-1.html#level-8" aria-label="Level 8, Discrete Probability Distributions, 12 questions" data-caption="8  Discrete Probability Distributions, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-9" aria-label="Level 9, Continuous Distributions: Uniform &amp; Exponential, 10 questions" data-caption="9  Continuous Distributions: Uniform &amp; Exponential, 10 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-10" aria-label="Level 10, The Normal Distribution &amp; Z-scores, 11 questions" data-caption="10  The Normal Distribution &amp; Z-scores, 11 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-11" aria-label="Level 11, Sampling Distributions &amp; the Central Limit Theorem, 7 questions" data-caption="11  Sampling Distributions &amp; the Central Limit Theorem, 7 questions"><i></i></a><a class="rung" style="--h:19%" href="stats_probability_ladder-1.html#level-12" aria-label="Level 12, Hypothesis Testing Fundamentals, 12 questions" data-caption="12  Hypothesis Testing Fundamentals, 12 questions"><i></i></a><a class="rung" style="--h:18%" href="stats_probability_ladder-1.html#level-13" aria-label="Level 13, Confidence Intervals, 7 questions" data-caption="13  Confidence Intervals, 7 questions"><i></i></a><a class="rung" style="--h:100%" href="stats_probability_ladder-1.html#level-14" aria-label="Level 14, Correlation, Covariance &amp; Final Review, 64 questions" data-caption="14  Correlation, Covariance &amp; Final Review, 64 questions"><i></i></a>
         </div>
         <p class="rung-caption" aria-hidden="true">Each bar is one level. Taller bars have more questions.</p>
+      </div>
+    </article>
+  </section>
+  <section class="group" style="--gc:#d69a6f" aria-labelledby="g-extra">
+    <h2 id="g-extra">Extra practice</h2>
+    <article class="ladder solo" style="--gc:#d69a6f">
+      <div class="info">
+        <h3 class="name"><a href="python_data_science_1900_problem_bank.html">Python Data Science Practice Bank</a></h3>
+        <p class="desc">LeetCode/HackerRank-style problems covering pandas, NumPy, data cleaning, aggregation and merging, plus the wider scientific Python stack (Anaconda, IPython, Jupyter) — each with sample input/output. Search or filter by topic on the page itself.</p>
+        <p class="facts"><span><b>1,900</b> questions</span><span>19 topics</span><span>100 per topic</span><span>sample I/O included</span></p>
+        <ul class="topics">
+          <li><span class="pill">Introduction to Pandas</span></li>
+          <li><span class="pill">Accessing Data from Pandas Data Structures</span></li>
+          <li><span class="pill">Knowing Data More</span></li>
+          <li><span class="pill">Reading and Writing Data with Pandas</span></li>
+          <li><span class="pill">Indexing Data Frames</span></li>
+          <li><span class="pill">Data Cleaning</span></li>
+          <li><span class="pill">Data Aggregation</span></li>
+          <li><span class="pill">Data Merging</span></li>
+          <li><span class="pill">Introduction to NumPy</span></li>
+          <li><span class="pill">Creation of NumPy Arrays</span></li>
+          <li><span class="pill">Basic Operations on NumPy Arrays</span></li>
+          <li><span class="pill">Indexing, Slicing, Iterating NumPy Arrays</span></li>
+          <li><span class="pill">Array Shape Manipulation</span></li>
+          <li><span class="pill">NumPy</span></li>
+          <li><span class="pill">Python Libraries for Data Science</span></li>
+          <li><span class="pill">Anaconda Popular Scientific Distribution</span></li>
+          <li><span class="pill">Python Scientific Notebook / IPython</span></li>
+          <li><span class="pill">IPython Components</span></li>
+          <li><span class="pill">Introduction to Jupyter Notebooks</span></li>
+        </ul>
+      </div>
+    </article>
+    <article class="ladder solo" style="--gc:#d69a6f">
+      <div class="info">
+        <h3 class="name"><a href="NumPy___pandas__end_to_end.html">NumPy &amp; pandas, end to end</a></h3>
+        <p class="desc">Theory lessons covering every function and attribute you'll actually use, twelve runnable case studies, and a quiz bank with instant feedback. Jump straight to a section below.</p>
+        <p class="facts"><span><b>38</b> lessons</span><span><b>12</b> case studies</span><span><b>253</b> MCQs</span></p>
+        <ul class="topics">
+          <li><a class="pill" href="NumPy___pandas__end_to_end.html#numpy">NumPy lessons</a></li>
+          <li><a class="pill" href="NumPy___pandas__end_to_end.html#pandas">pandas lessons</a></li>
+          <li><a class="pill" href="NumPy___pandas__end_to_end.html#cases">Case studies</a></li>
+          <li><a class="pill" href="NumPy___pandas__end_to_end.html#quiz">Quiz</a></li>
+          <li><a class="pill" href="NumPy___pandas__end_to_end.html#cheat">Cheat sheet</a></li>
+        </ul>
       </div>
     </article>
   </section>
