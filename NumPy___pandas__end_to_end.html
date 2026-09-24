@@ -351,7 +351,8 @@ arr * 2                # ~1-2 ms     (C loop, no Python objects)
 </table></div>
 <p><strong>Axes.</strong> For shape <code>(2, 3)</code>: axis 0 runs <em>down</em> the rows (length 2), axis 1 runs <em>across</em> the columns (length 3). For 3-D <code>(depth, rows, cols)</code>, axis 0 is depth. A reduction with <code>axis=k</code> <strong>removes</strong> axis <code>k</code> from the shape.</p>
 <p><strong>Strides and order.</strong> Default is <strong>C order</strong> (row-major): the last index varies fastest in memory. Fortran order (<code>order='F'</code>) is column-major. Transposing just swaps strides — no data moves — which is why <code>a.T</code> is O(1) and returns a view.</p></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Creating arrays</span></summary><div class="body"><pre><code class="language-python"># From Python data
+<details class="sec" data-topic="np"><summary><span class="t">Creating arrays</span></summary><div class="body"><p>Every array eventually comes from one of three places: converting existing Python data, building a placeholder of a known shape to fill in later, or generating a mathematical sequence. Knowing which bucket a task falls into narrows the dozens of constructors below to the one or two that actually apply.</p>
+<pre><code class="language-python"># From Python data
 np.array([1, 2, 3])                    # 1-D
 np.array([[1, 2], [3, 4]], dtype=float)  # 2-D with explicit dtype
 np.asarray(x)                          # no copy if x is already an ndarray
@@ -493,7 +494,8 @@ np.diag(a), np.triu(a), np.tril(a)
 <blockquote>
 <p><strong>Views vs copies.</strong> <code>b = a[:2]</code> shares memory; write to <code>b</code> and <code>a</code> changes. Use <code>.copy()</code> when you need independence. <code>np.shares_memory(a, b)</code> and <code>b.base is a</code> are ways to check.</p>
 </blockquote></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Shape manipulation</span></summary><div class="body"><pre><code class="language-python">a = np.arange(6)
+<details class="sec" data-topic="np"><summary><span class="t">Shape manipulation</span></summary><div class="body"><p>An array's data and its shape are two separate things: the same block of numbers can be read as a flat list, a grid, or a stack of grids, and reshaping just changes the metadata that says how to walk through that block - it doesn't move a single value unless the layout genuinely can't be reinterpreted in place (in which case NumPy silently falls back to copying). Knowing which of the operations below return a view and which force a copy is the difference between an O(1) reshape and an accidental full-array copy in a hot loop.</p>
+<pre><code class="language-python">a = np.arange(6)
 a.reshape(2, 3)        # view when possible; total size must match
 a.reshape(2, -1)       # -1 = infer this dimension
 a.ravel()              # flatten to 1-D; VIEW when possible
@@ -510,7 +512,8 @@ np.roll(a, 2)          # circular shift
 np.rot90(b)            # rotate 90 degrees
 np.atleast_2d(a)       # ensure at least 2 dimensions
 </code></pre></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Joining and splitting</span></summary><div class="body"><pre><code class="language-python">a = np.array([[1, 2], [3, 4]])
+<details class="sec" data-topic="np"><summary><span class="t">Joining and splitting</span></summary><div class="body"><p>Combining arrays always means choosing an axis: <code>concatenate</code>/<code>vstack</code>/<code>hstack</code> extend an <em>existing</em> axis (the result has the same number of dimensions as the inputs), while <code>stack</code> introduces a <em>brand-new</em> axis (the result has one more dimension). Splitting is the exact inverse operation, and every joining function below has a natural splitting counterpart that undoes it.</p>
+<pre><code class="language-python">a = np.array([[1, 2], [3, 4]])
 b = np.array([[5, 6]])
 
 np.concatenate((a, b), axis=0)   # stack rows -&gt; (3, 2); takes ONE tuple/list
@@ -550,7 +553,7 @@ D = np.sqrt(((P[:, None, :] - P[None, :, :]) ** 2).sum(axis=-1))   # (5, 5)
 <blockquote>
 <p><strong>Fix for "(2,3) + (2,)":</strong> turn the vector into a column: <code>v[:, None]</code> or <code>v.reshape(-1, 1)</code>.</p>
 </blockquote></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Universal functions (ufuncs) and math</span></summary><div class="body"><p>A <strong>ufunc</strong> applies element-wise, supports broadcasting, <code>out=</code>, <code>where=</code>, and has methods.</p>
+<details class="sec" data-topic="np"><summary><span class="t">Universal functions (ufuncs) and math</span></summary><div class="body"><p>A <strong>ufunc</strong> applies element-wise, supports broadcasting, <code>out=</code>, <code>where=</code>, and has methods. Every arithmetic operator you already use (<code>+</code>, <code>*</code>, <code>**</code>) is secretly a ufunc call under the hood - <code>a + b</code> is shorthand for <code>np.add(a, b)</code> - which is why they all broadcast the same way and all accept the same <code>out=</code>/<code>where=</code> keywords. Reaching for the named function instead of the operator only matters when you need one of those extra keywords, or one of the reduction/accumulation methods every ufunc carries (<code>.reduce</code>, <code>.accumulate</code>, <code>.outer</code>, <code>.at</code>).</p>
 <pre><code class="language-python">a = np.array([1., 4., 9.])
 np.sqrt(a); np.exp(a); np.log(a); np.log10(a); np.log1p(a); np.expm1(a)
 np.sin(a); np.cos(a); np.tan(a); np.arctan2(y, x); np.deg2rad(180)
@@ -600,7 +603,8 @@ np.count_nonzero(a &gt; 3)
 <blockquote>
 <p><strong>Rule of thumb for <code>axis</code>.</strong> The named axis <em>disappears</em>. Sum of shape <code>(3, 4)</code> along axis 0 gives <code>(4,)</code>; along axis 1 gives <code>(3,)</code>.</p>
 </blockquote></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Comparisons, logic and masks</span></summary><div class="body"><pre><code class="language-python">a = np.array([1, 5, 8, 3])
+<details class="sec" data-topic="np"><summary><span class="t">Comparisons, logic and masks</span></summary><div class="body"><p>Comparing two arrays produces a third array of booleans, not a single true/false - NumPy has no way to collapse "is every element greater" into one answer unless you explicitly ask it to with <code>.any()</code> or <code>.all()</code>. That boolean array is also a first-class value: store it, combine it with <code>&amp;</code>/<code>|</code>/<code>~</code>, and feed it straight back into indexing to select exactly the elements it marked <code>True</code>.</p>
+<pre><code class="language-python">a = np.array([1, 5, 8, 3])
 a &gt; 4                          # [False  True  True False]
 (a &gt; 2) &amp; (a &lt; 8)              # AND;   | OR;   ~ NOT;   ^ XOR
 np.logical_and(a &gt; 2, a &lt; 8)   # function form
@@ -614,7 +618,8 @@ np.isnan(x); np.isinf(x); np.isfinite(x)
 <blockquote>
 <p>Using <code>and</code> / <code>or</code> / <code>if arr:</code> on a multi-element array raises <code>ValueError: The truth value of an array ... is ambiguous</code>. Use <code>&amp;</code>, <code>|</code>, <code>.any()</code>, <code>.all()</code>.</p>
 </blockquote></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Sorting, searching and sets</span></summary><div class="body"><pre><code class="language-python">a = np.array([30, 10, 20, 10])
+<details class="sec" data-topic="np"><summary><span class="t">Sorting, searching and sets</span></summary><div class="body"><p>NumPy separates "give me a sorted array" from "tell me the order that would sort it": <code>np.sort</code> answers the first, <code>np.argsort</code> the second, and having both matters whenever you need to reorder <em>other</em> arrays (like a set of labels) to match a sort performed on a different one. Set operations (<code>union1d</code>, <code>intersect1d</code>, <code>setdiff1d</code>) all quietly sort and deduplicate their output, so they answer "which values" questions, not "which positions" ones.</p>
+<pre><code class="language-python">a = np.array([30, 10, 20, 10])
 np.sort(a)                 # sorted COPY;  a.sort() sorts in place and returns None
 np.sort(a)[::-1]           # descending
 np.argsort(a)              # indices that sort a   [1 3 2 0]
@@ -636,7 +641,8 @@ np.unique(M, axis=0)                           # unique rows
 np.union1d(a, b); np.intersect1d(a, b); np.setdiff1d(a, b); np.setxor1d(a, b)
 np.isin(a, b)      # (in1d is deprecated)
 </code></pre></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Linear algebra</span></summary><div class="body"><pre><code class="language-python">A = np.array([[2., 1.], [1., 3.]])
+<details class="sec" data-topic="np"><summary><span class="t">Linear algebra</span></summary><div class="body"><p>The single most common NumPy bug in this area is confusing <code>*</code> (elementwise multiplication - each cell times its counterpart) with <code>@</code> (true matrix multiplication - rows dotted against columns); both compile without error but produce entirely different, differently-shaped results. Everything else here builds on that one distinction: solving a linear system, decomposing a matrix, or computing a norm are all specific, well-tested operations that <code>np.linalg</code> provides so you never hand-roll Gaussian elimination yourself.</p>
+<pre><code class="language-python">A = np.array([[2., 1.], [1., 3.]])
 b = np.array([1., 2.])
 
 A @ A                    # matrix product (same as np.matmul);  A * A is ELEMENT-wise
@@ -668,7 +674,8 @@ rng.permutation(10)                   # shuffled copy;  rng.shuffle(a) shuffles 
 rng.binomial(10, 0.5, 100); rng.poisson(3, 100); rng.exponential(2.0, 100)
 </code></pre>
 <p>Legacy API (still common in old code): <code>np.random.seed(0)</code>, <code>np.random.rand</code>, <code>np.random.randn</code>, <code>np.random.randint(low, high)</code> (high exclusive), <code>np.random.shuffle</code>. It shares global state — prefer explicit <code>Generator</code> objects, especially in functions and parallel code.</p></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">Missing values, infinities and masked arrays</span></summary><div class="body"><pre><code class="language-python">x = np.array([1., np.nan, 3., np.inf])
+<details class="sec" data-topic="np"><summary><span class="t">Missing values, infinities and masked arrays</span></summary><div class="body"><p>NumPy has no dedicated missing-value type the way pandas has <code>NaT</code>/<code>pd.NA</code>; instead it overloads floating-point <code>NaN</code> for the job, which means an int array can't hold a missing value at all without first being cast to float. Because <code>NaN</code> poisons any calculation it touches (a single <code>NaN</code> in a sum makes the whole sum <code>NaN</code>), every reduction has a <code>nan*</code>-prefixed sibling (<code>nansum</code>, <code>nanmean</code>, ...) that skips missing entries instead of propagating them.</p>
+<pre><code class="language-python">x = np.array([1., np.nan, 3., np.inf])
 np.isnan(x)            # [F T F F]
 np.isfinite(x)         # [T F T F]
 np.nan == np.nan       # False   (use isnan)
@@ -680,7 +687,8 @@ x[~np.isnan(x)]        # drop NaN
 m = np.ma.masked_invalid(x)
 m.mean()               # ignores masked entries
 </code></pre></div></details>
-<details class="sec" data-topic="np"><summary><span class="t">File input / output</span></summary><div class="body"><pre><code class="language-python">np.save(&quot;a.npy&quot;, a); a = np.load(&quot;a.npy&quot;)              # binary, exact dtype &amp; shape (fast)
+<details class="sec" data-topic="np"><summary><span class="t">File input / output</span></summary><div class="body"><p>NumPy's own formats (<code>.npy</code> for one array, <code>.npz</code> for several) round-trip a file back to the exact dtype and shape it started with and are far faster to read/write than text - use them for intermediate results you'll reload with NumPy itself. Text formats (<code>savetxt</code>/<code>loadtxt</code>) are human-readable and portable but slower and lossier (they store numbers as text, so you control precision explicitly with <code>fmt=</code>), and neither text nor binary NumPy format handles a mix of column types or missing values gracefully - that's what the next paragraph's escape hatch to pandas is for.</p>
+<pre><code class="language-python">np.save(&quot;a.npy&quot;, a); a = np.load(&quot;a.npy&quot;)              # binary, exact dtype &amp; shape (fast)
 np.savez(&quot;many.npz&quot;, x=x, y=y); d = np.load(&quot;many.npz&quot;); d[&quot;x&quot;]
 np.savez_compressed(&quot;many.npz&quot;, x=x, y=y)
 np.savetxt(&quot;a.csv&quot;, a, delimiter=&quot;,&quot;, fmt=&quot;%.3f&quot;, header=&quot;c1,c2&quot;)
@@ -743,7 +751,8 @@ df = pd.DataFrame({&quot;name&quot;: [&quot;Ann&quot;, &quot;Bob&quot;, &quot;Cy
 <blockquote>
 <p><strong>Versions.</strong> This guide covers pandas 2.x and 3.x. Big 3.0 changes: <strong>Copy-on-Write is always on</strong> (no more views/copies ambiguity, chained assignment never writes to the parent), text columns default to a dedicated <strong><code>str</code> dtype</strong> (instead of <code>object</code>), and many long-deprecated features are gone. Version-specific notes are flagged as <em>(2.x)</em> / <em>(3.0)</em>.</p>
 </blockquote></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Creating Series, DataFrames and Indexes</span></summary><div class="body"><pre><code class="language-python"># Series
+<details class="sec" data-topic="pd"><summary><span class="t">Creating Series, DataFrames and Indexes</span></summary><div class="body"><p>A DataFrame can be built from almost any shape of Python data - a dict of columns, a list of rows, a list of row-dicts, or a raw NumPy array - and pandas infers the row index and each column's dtype from whichever form you hand it. The dict-of-columns form (<code>pd.DataFrame({"a": [...], "b": [...]})</code>) is usually the most natural when data already lives in parallel arrays; the list-of-dicts form is more convenient when each record arrives as a separate object (e.g. one per API response) and missing keys should simply become <code>NaN</code>.</p>
+<pre><code class="language-python"># Series
 pd.Series([1, 2, 3])                          # RangeIndex 0..2
 pd.Series({&quot;a&quot;: 1, &quot;b&quot;: 2})                   # keys become the index
 pd.Series(5, index=[&quot;x&quot;, &quot;y&quot;])                # scalar broadcast
@@ -762,7 +771,8 @@ pd.date_range(&quot;2024-01-01&quot;, periods=5, freq=&quot;D&quot;)
 pd.MultiIndex.from_product([[&quot;a&quot;, &quot;b&quot;], [1, 2]], names=[&quot;k&quot;, &quot;n&quot;])
 pd.MultiIndex.from_tuples([(&quot;a&quot;, 1), (&quot;b&quot;, 2)])
 </code></pre></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Reading and writing data</span></summary><div class="body"><pre><code class="language-python">df = pd.read_csv(&quot;data.csv&quot;)
+<details class="sec" data-topic="pd"><summary><span class="t">Reading and writing data</span></summary><div class="body"><p>Every <code>read_*</code> function has a matching <code>to_*</code> method, and the arguments that matter most on the way in are the ones that avoid a second cleaning pass later: <code>dtype</code> and <code>parse_dates</code> get columns into the right type while loading instead of after, <code>usecols</code> and <code>nrows</code>/<code>chunksize</code> control how much memory a large file actually uses, and <code>na_values</code> tells pandas which sentinel strings in the source data should already become <code>NaN</code>.</p>
+<pre><code class="language-python">df = pd.read_csv(&quot;data.csv&quot;)
 df = pd.read_csv(
     &quot;data.csv&quot;,
     usecols=[&quot;date&quot;, &quot;price&quot;],        # load only what you need
@@ -788,7 +798,8 @@ df.to_csv(&quot;out.csv&quot;, index=False)         # index=False avoids the 'Un
 df.to_excel(&quot;out.xlsx&quot;, index=False); df.to_parquet(&quot;out.parquet&quot;); df.to_json(&quot;o.json&quot;, orient=&quot;records&quot;)
 df.to_dict(&quot;records&quot;); df.to_numpy(); df.to_string(); df.to_markdown()
 </code></pre></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Inspecting a DataFrame</span></summary><div class="body"><pre><code class="language-python">df.head(); df.tail(3); df.sample(5, random_state=0)
+<details class="sec" data-topic="pd"><summary><span class="t">Inspecting a DataFrame</span></summary><div class="body"><p>Before writing any transformation, three quick checks answer almost every "what am I working with" question: <code>.shape</code>/<code>.head()</code> for size and a visual sample, <code>.info()</code> for dtypes and where nulls hide, and <code>.describe()</code> for the numeric distribution. Running all three takes seconds and catches most surprises (wrong dtype, unexpected nulls, an outlier skewing the mean) before they turn into a bug three steps later.</p>
+<pre><code class="language-python">df.head(); df.tail(3); df.sample(5, random_state=0)
 df.shape            # (rows, cols)
 df.info()           # dtypes, non-null counts, memory (prints, returns None)
 df.describe()       # count/mean/std/min/quartiles/max for numeric columns
@@ -876,7 +887,8 @@ df.xs(&quot;NY&quot;, level=&quot;city&quot;)              # cross-section on a 
 <blockquote>
 <p><strong>Chained assignment.</strong> <code>df[df.age &gt; 30]["city"] = "SF"</code> modifies a temporary. Always use one <code>.loc[mask, col] = value</code>. Under Copy-on-Write (3.0) the chained form never affects <code>df</code>; in 2.x it may warn (<code>SettingWithCopyWarning</code>).</p>
 </blockquote></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Adding, changing and removing columns / rows</span></summary><div class="body"><pre><code class="language-python">df[&quot;senior&quot;] = df.age &gt;= 40                     # new column from expression
+<details class="sec" data-topic="pd"><summary><span class="t">Adding, changing and removing columns / rows</span></summary><div class="body"><p>Adding a column is just assigning to a new label - pandas doesn't need a separate "declare this column" step - and the assigned expression is evaluated once for the whole column, not once per row. <code>assign()</code> does the same thing but returns a new DataFrame instead of mutating in place, which is what lets it slot into a method chain (<code>df.assign(...).query(...).sort_values(...)</code>) without an intermediate variable at every step.</p>
+<pre><code class="language-python">df[&quot;senior&quot;] = df.age &gt;= 40                     # new column from expression
 df[&quot;age_next&quot;] = df[&quot;age&quot;] + 1
 df = df.assign(bmi=lambda d: d.weight / d.height**2, adult=lambda d: d.age &gt;= 18)   # chain-friendly
 df.insert(1, &quot;id&quot;, range(len(df)))              # at a position
@@ -917,7 +929,8 @@ df[&quot;city&quot;] = df[&quot;city&quot;].fillna(df[&quot;city&quot;].mode()[0
 <li>An int column with a NaN becomes <code>float64</code>. Nullable dtypes (<code>Int64</code>, <code>Float64</code>, <code>boolean</code>, <code>string</code>) keep ints and use <code>pd.NA</code>: <code>df["a"].astype("Int64")</code>.</li>
 <li><code>fillna(method="ffill")</code> is deprecated — use <code>.ffill()</code> / <code>.bfill()</code>.</li>
 </ul></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Data types and conversion</span></summary><div class="body"><pre><code class="language-python">df.dtypes
+<details class="sec" data-topic="pd"><summary><span class="t">Data types and conversion</span></summary><div class="body"><p>A column's dtype decides what operations are even legal on it - you can't take the mean of an <code>object</code> column of strings - so converting a freshly loaded column (often <code>object</code> by default) into the right numeric, datetime, or categorical dtype is usually the first real step of cleaning. The <code>errors="coerce"</code> pattern used by <code>to_numeric</code>/<code>to_datetime</code> below is worth internalising: it turns "this value doesn't fit the target type" into a visible, filterable <code>NaN</code>/<code>NaT</code> instead of crashing the whole conversion.</p>
+<pre><code class="language-python">df.dtypes
 df[&quot;age&quot;] = df[&quot;age&quot;].astype(&quot;int32&quot;)
 df = df.astype({&quot;id&quot;: &quot;int32&quot;, &quot;city&quot;: &quot;category&quot;})
 pd.to_numeric(df[&quot;x&quot;], errors=&quot;coerce&quot;)        # bad strings -&gt; NaN
@@ -954,7 +967,8 @@ d.dt.strftime(&quot;%Y-%m&quot;); d.dt.floor(&quot;h&quot;); d.dt.tz_localize(&q
 d.dt.to_period(&quot;M&quot;)
 (d2 - d1).dt.days; (d2 - d1).dt.total_seconds()
 </code></pre></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Duplicates and outliers</span></summary><div class="body"><pre><code class="language-python">df.duplicated()                                   # False for first occurrence
+<details class="sec" data-topic="pd"><summary><span class="t">Duplicates and outliers</span></summary><div class="body"><p>"Duplicate" and "outlier" are both judgment calls pandas needs you to define precisely: duplicates require deciding which columns count toward sameness (the whole row, or just a natural key like an email), and outliers require picking a rule for "too extreme" - the IQR method below is a common distribution-free default, robust because it's based on quartiles rather than the mean, which extreme values themselves would distort.</p>
+<pre><code class="language-python">df.duplicated()                                   # False for first occurrence
 df.duplicated(subset=[&quot;email&quot;], keep=False)       # flag ALL duplicates
 df.drop_duplicates(subset=[&quot;email&quot;], keep=&quot;last&quot;)
 df[&quot;z&quot;] = (df.x - df.x.mean()) / df.x.std()       # z-score
@@ -962,7 +976,8 @@ q1, q3 = df.x.quantile([.25, .75]); iqr = q3 - q1
 df[df.x.between(q1 - 1.5 * iqr, q3 + 1.5 * iqr)]  # IQR outlier filter
 df[&quot;x&quot;].clip(lower=q1 - 1.5*iqr, upper=q3 + 1.5*iqr)   # winsorise
 </code></pre></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Sorting and ranking</span></summary><div class="body"><pre><code class="language-python">df.sort_values(&quot;age&quot;, ascending=False)
+<details class="sec" data-topic="pd"><summary><span class="t">Sorting and ranking</span></summary><div class="body"><p>Sorting reorders rows and returns them in that new order; ranking keeps every row exactly where it is and instead adds a number describing each value's position within the whole column - the two solve related but different problems ("show me the data in order" vs. "where does this specific row fall"), and mixing them up is a common source of confused code that sorts when it meant to rank or vice versa.</p>
+<pre><code class="language-python">df.sort_values(&quot;age&quot;, ascending=False)
 df.sort_values([&quot;city&quot;, &quot;age&quot;], ascending=[True, False])
 df.sort_values(&quot;age&quot;, kind=&quot;stable&quot;, na_position=&quot;first&quot;)
 df.sort_index(); df.sort_index(axis=1)
@@ -970,7 +985,8 @@ df[&quot;age&quot;].rank(method=&quot;average&quot;)      # ties -&gt; average; 
 df[&quot;age&quot;].rank(pct=True)
 df.nlargest(3, &quot;age&quot;)                 # faster than sort + head
 </code></pre></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Aggregation and descriptive statistics</span></summary><div class="body"><pre><code class="language-python">df[&quot;age&quot;].sum(); .mean(); .median(); .std(); .var(); .min(); .max()
+<details class="sec" data-topic="pd"><summary><span class="t">Aggregation and descriptive statistics</span></summary><div class="body"><p>These reductions are the pandas equivalent of NumPy's array statistics, but with two pandas-specific twists worth remembering: they skip <code>NaN</code> by default (so a column with missing values still gets a sensible mean), and <code>idxmax</code>/<code>idxmin</code> return the row's <em>index label</em> rather than its position, which is what lets you pull the whole record straight from an extreme value with <code>df.loc[s.idxmax()]</code>.</p>
+<pre><code class="language-python">df[&quot;age&quot;].sum(); .mean(); .median(); .std(); .var(); .min(); .max()
 df[&quot;age&quot;].count()                 # non-null count
 df[&quot;age&quot;].idxmax()                # LABEL of max;  .argmax() -&gt; position
 df[&quot;age&quot;].quantile([.1, .9]); df[&quot;age&quot;].mode(); df[&quot;age&quot;].skew(); df[&quot;age&quot;].kurt()
@@ -1049,7 +1065,8 @@ df.groupby(&quot;city&quot;, observed=True)        # categoricals: only observed
 </tr>
 </tbody>
 </table></div></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Reshaping: pivot, melt, stack, dummies, bins</span></summary><div class="body"><pre><code class="language-python"># long -&gt; wide
+<details class="sec" data-topic="pd"><summary><span class="t">Reshaping: pivot, melt, stack, dummies, bins</span></summary><div class="body"><p>"Long" data has one row per observation and a column naming what's being measured; "wide" data spreads those measurements across separate columns, one per category - the same information, laid out differently for different purposes (long is easier to filter and group, wide is easier to eyeball or feed to some plotting functions). <code>pivot</code>/<code>pivot_table</code> go long-to-wide, <code>melt</code> goes wide-to-long, and <code>get_dummies</code>/<code>cut</code>/<code>qcut</code> solve the narrower, very common sub-problem of turning one categorical or continuous column into several binary or bucketed ones.</p>
+<pre><code class="language-python"># long -&gt; wide
 df.pivot(index=&quot;date&quot;, columns=&quot;city&quot;, values=&quot;temp&quot;)             # errors on duplicate pairs
 df.pivot_table(index=&quot;region&quot;, columns=&quot;year&quot;, values=&quot;sales&quot;,
                aggfunc=&quot;sum&quot;, fill_value=0, margins=True)         # aggregates duplicates
@@ -1121,7 +1138,8 @@ df1.combine_first(df2)                     # fill NaN in df1 from df2
 </table></div>
 <p><strong>Anti-join</strong> (left rows with no match): <code>m = a.merge(b, on="k", how="left", indicator=True); m[m["_merge"] == "left_only"]</code>.
 Watch for <strong>row explosion</strong>: duplicate keys on both sides multiply rows — check <code>validate=</code> and <code>df.k.is_unique</code>.</p></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Time series</span></summary><div class="body"><pre><code class="language-python">df[&quot;date&quot;] = pd.to_datetime(df[&quot;date&quot;])
+<details class="sec" data-topic="pd"><summary><span class="t">Time series</span></summary><div class="body"><p>Once a datetime column becomes a <code>DatetimeIndex</code> (via <code>set_index</code> after <code>to_datetime</code>), pandas unlocks calendar-aware behaviour that a plain numeric or object index doesn't have: partial-string slicing (<code>df.loc["2024-03"]</code> selects a whole month without spelling out its exact date range), and <code>resample</code>, which regroups irregular timestamps into fixed calendar buckets the same way <code>groupby</code> regroups by category.</p>
+<pre><code class="language-python">df[&quot;date&quot;] = pd.to_datetime(df[&quot;date&quot;])
 df = df.set_index(&quot;date&quot;).sort_index()
 df.loc[&quot;2024-03&quot;]                     # partial-string indexing: whole month
 df.loc[&quot;2024-01-01&quot;:&quot;2024-03-31&quot;]     # inclusive slice
@@ -1135,7 +1153,8 @@ df.tz_localize(&quot;UTC&quot;).tz_convert(&quot;US/Eastern&quot;)
 pd.Timestamp(&quot;2024-03-15&quot;) + pd.Timedelta(days=7)
 pd.offsets.BDay(3); pd.Timestamp(&quot;2024-03-15&quot;) + pd.offsets.MonthEnd(0)
 </code></pre></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">Window operations</span></summary><div class="body"><pre><code class="language-python">s.rolling(7).mean()                    # first 6 values NaN (min_periods = window)
+<details class="sec" data-topic="pd"><summary><span class="t">Window operations</span></summary><div class="body"><p>A window function computes a statistic not over the whole column but over a sliding neighbourhood of nearby rows, which is what turns a noisy series into a smoothed trend without discarding its time resolution the way a single overall average would. <code>rolling</code> uses a fixed-size window that slides one row at a time, <code>expanding</code> uses a window that grows to include everything seen so far, and <code>ewm</code> weights recent rows more heavily than distant ones instead of weighting every row in the window equally.</p>
+<pre><code class="language-python">s.rolling(7).mean()                    # first 6 values NaN (min_periods = window)
 s.rolling(7, min_periods=1).mean()
 s.rolling(&quot;30D&quot;).sum()                 # time-based window (DatetimeIndex)
 s.rolling(20, center=True).std()
@@ -1143,7 +1162,8 @@ s.expanding().max()                    # cumulative window from the start
 s.ewm(span=10, adjust=False).mean()    # exponentially weighted (EMA)
 df.groupby(&quot;id&quot;)[&quot;x&quot;].rolling(3).mean()
 </code></pre></div></details>
-<details class="sec" data-topic="pd"><summary><span class="t">MultiIndex (hierarchical index)</span></summary><div class="body"><pre><code class="language-python">g = df.groupby([&quot;region&quot;, &quot;year&quot;])[&quot;sales&quot;].sum()     # Series with 2-level index
+<details class="sec" data-topic="pd"><summary><span class="t">MultiIndex (hierarchical index)</span></summary><div class="body"><p>A MultiIndex labels each row with a <em>tuple</em> of values instead of one - typically the natural result of grouping by more than one column - and lets you select at any level of that hierarchy: the outer level alone, an exact tuple, or a cross-section that fixes one level and varies the rest. It's the same information a flat table with repeated key columns would hold, just organised so that "give me everything for this outer key" is a direct lookup instead of a filter.</p>
+<pre><code class="language-python">g = df.groupby([&quot;region&quot;, &quot;year&quot;])[&quot;sales&quot;].sum()     # Series with 2-level index
 g.loc[&quot;EU&quot;]                       # outer level
 g.loc[(&quot;EU&quot;, 2024)]               # both levels
 g.xs(2024, level=&quot;year&quot;)          # cross-section on inner level
